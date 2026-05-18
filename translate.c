@@ -177,6 +177,13 @@ static int translate_readwrite(const char *file, int flags)
 	int ret;
 	int fd;
 
+	/* Reject directory traversal attempts */
+	if (strstr(file, "..")) {
+		warn("path traversal attempt rejected: %s", file);
+		errno = EACCES;
+		return -1;
+	}
+
 	ret = mkdir(TQFTPSERV_RW_DIR, 0700);
 	if (ret < 0 && errno != EEXIST) {
 		warn("failed to create tqftpserv readwrite directory");
